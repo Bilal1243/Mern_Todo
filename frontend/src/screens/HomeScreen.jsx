@@ -1,18 +1,31 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./HomeScreen.css";
+import BackendInstance from "../Axios";
 
 function HomeScreen() {
   // let [state,updateState] = useState(initialValue)
 
   let [title, setTitle] = useState("");
   let [description, setDescription] = useState("");
+  let [todos, setTodos] = useState([]);
 
-  let todos = [];
+  const getTodos = async () => {
+    let response = await BackendInstance.get("/getTodos");
+    setTodos(response.data);
+  };
+
+  useEffect(() => {
+    getTodos();
+  } , []);
 
   const submitHandler = async (e) => {
     e.preventDefault();
-    console.log(title);
-    console.log(description);
+
+    await BackendInstance.post("/", { title, description });
+
+    getTodos()
+    setTitle("")
+    setDescription("")
   };
 
   return (
@@ -42,7 +55,7 @@ function HomeScreen() {
         </div>
 
         <div className="todos-container">
-          {todos?.map((todo) => (
+          {todos.map((todo) => (
             <div className="box todo-card" key={todo._id}>
               <h1 className={todo.status ? "completed" : "todo-title"}>
                 {todo.title}
