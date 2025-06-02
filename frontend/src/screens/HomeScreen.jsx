@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import "./HomeScreen.css";
 import BackendInstance from "../Axios";
+import { useNavigate } from "react-router-dom";
 
 function HomeScreen() {
   // let [state,updateState] = useState(initialValue)
@@ -9,6 +10,8 @@ function HomeScreen() {
   let [description, setDescription] = useState("");
   let [todos, setTodos] = useState([]);
 
+  const navigate = useNavigate();
+
   const getTodos = async () => {
     let response = await BackendInstance.get("/getTodos");
     setTodos(response.data);
@@ -16,16 +19,22 @@ function HomeScreen() {
 
   useEffect(() => {
     getTodos();
-  } , []);
+  }, []);
 
   const submitHandler = async (e) => {
     e.preventDefault();
 
     await BackendInstance.post("/", { title, description });
 
-    getTodos()
-    setTitle("")
-    setDescription("")
+    getTodos();
+    setTitle("");
+    setDescription("");
+  };
+
+  const deleteHandler = async (id) => {
+    await BackendInstance.delete(`/${id}`);
+
+    getTodos();
   };
 
   return (
@@ -62,8 +71,20 @@ function HomeScreen() {
               </h1>
               <p className="todo-description">{todo.description}</p>
               <div className="button-group">
-                <button className="delete-btn">Delete</button>
-                {!todo.status && <button className="edit-btn">Edit</button>}
+                <button
+                  className="delete-btn"
+                  onClick={() => deleteHandler(todo._id)}
+                >
+                  Delete
+                </button>
+                {!todo.status && (
+                  <button
+                    className="edit-btn"
+                    onClick={() => navigate(`/edit/${todo._id}`)}
+                  >
+                    Edit
+                  </button>
+                )}
               </div>
             </div>
           ))}
