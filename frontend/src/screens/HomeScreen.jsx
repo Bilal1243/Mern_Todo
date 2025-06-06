@@ -2,39 +2,47 @@ import { useState, useEffect } from "react";
 import "./HomeScreen.css";
 import BackendInstance from "../Axios";
 import { useNavigate } from "react-router-dom";
+import {
+  useGetTodosQuery,
+  useCreateTodoMutation,
+  useDeleteTodoMutation,
+} from "../slices/todoApiSlice";
 
 function HomeScreen() {
   // let [state,updateState] = useState(initialValue)
 
   let [title, setTitle] = useState("");
   let [description, setDescription] = useState("");
-  let [todos, setTodos] = useState([]);
 
   const navigate = useNavigate();
 
-  const getTodos = async () => {
-    let response = await BackendInstance.get("/getTodos");
-    setTodos(response.data);
-  };
+  const { data: todos, refetch } = useGetTodosQuery();
 
-  useEffect(() => {
-    getTodos();
-  }, []);
+  const [createTodo] = useCreateTodoMutation();
+  const [deleteTodo] = useDeleteTodoMutation();
 
   const submitHandler = async (e) => {
-    e.preventDefault();
+    try {
+      e.preventDefault();
 
-    await BackendInstance.post("/", { title, description });
+      await createTodo({ title, description });
 
-    getTodos();
-    setTitle("");
-    setDescription("");
+      setTitle("");
+      setDescription("");
+      refetch();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const deleteHandler = async (id) => {
-    await BackendInstance.delete(`/${id}`);
+    try {
+      await deleteTodo(id);
 
-    getTodos();
+      refetch();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -64,7 +72,7 @@ function HomeScreen() {
         </div>
 
         <div className="todos-container">
-          {todos.map((todo) => (
+          {todos?.map((todo) => (
             <div className="box todo-card" key={todo._id}>
               <h1 className={todo.status ? "completed" : "todo-title"}>
                 {todo.title}

@@ -48,13 +48,26 @@ const deleteTodo = async (req, res) => {
     }
 }
 
+const getTodoById = async (req, res) => {
+    try {
+        let { id } = req.query
+
+        const todo = await Todos.findById(id)
+
+        res.json(todo)
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 
 const updateTodo = async (req, res) => {
     try {
 
         let { title, description, isCompleted } = req.body
 
-        let updatedTodo = await Todos.findByIdAndUpdate(req.query.id, { title, description, isCompleted })
+        let updatedTodo = await Todos.findByIdAndUpdate(req.body.id, { title, description, isCompleted })
 
         if (!updatedTodo) {
             return res.status(404).json({ message: 'Todo not founded' })
@@ -69,4 +82,4 @@ const updateTodo = async (req, res) => {
 
 
 
-export { createTodo, getTodos, deleteTodo, updateTodo }
+export { createTodo, getTodos, deleteTodo, updateTodo , getTodoById }
