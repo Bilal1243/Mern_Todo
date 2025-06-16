@@ -16,7 +16,7 @@ const userApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
-  }),
+  })
 });
 
 export const { 

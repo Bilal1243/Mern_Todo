@@ -7,9 +7,12 @@ import {
   useCreateTodoMutation,
   useDeleteTodoMutation,
 } from "../slices/todoApiSlice";
+import { useSelector } from "react-redux";
 
 function HomeScreen() {
   // let [state,updateState] = useState(initialValue)
+
+  const { userData } = useSelector((state) => state.auth);
 
   let [title, setTitle] = useState("");
   let [description, setDescription] = useState("");
@@ -44,6 +47,12 @@ function HomeScreen() {
       console.log(error);
     }
   };
+
+  useEffect(()=>{
+    if(!userData){
+      navigate('/login')
+    }
+  },[])
 
   return (
     <>

@@ -1,24 +1,37 @@
-import React, { useState , useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./RegisterPage.css";
+import { useLoginUserMutation } from "../slices/userApiSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { setCredentials } from "../slices/authSlice";
 
 function LoginPage() {
+  const {userData} = useSelector((state) => state.auth)
+
   let [email, setEmail] = useState("");
   let [password, setPassword] = useState("");
 
+  const [loginUser] = useLoginUserMutation();
 
   const navigate = useNavigate();
+  const dispatch = useDispatch()
 
   const loginHandler = async (e) => {
     e.preventDefault();
     try {
-
-
+      let data = await loginUser({ email, password }).unwrap();
+      await dispatch(setCredentials({...data}))
+      navigate('/')
     } catch (error) {
-
+      console.log(error?.data?.message || error?.message);
     }
   };
 
+  useEffect(()=>{
+    if(userData){
+      navigate('/')
+    }
+  },[])
 
   return (
     <div className="container">
