@@ -6,9 +6,12 @@ import {
   useUpdateTodoMutation,
   useGetTodosQuery,
 } from "../slices/todoApiSlice";
+import { useSelector } from "react-redux";
 
 function UpdateTodo() {
   const { id } = useParams();
+
+  const { userData } = useSelector((state) => state.auth);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -21,7 +24,9 @@ function UpdateTodo() {
   // });
 
   const { data: todo, refetch } = useGetTodoByIdQuery({ id });
-  const { data, refetch: getTodos } = useGetTodosQuery();
+  const { data, refetch: getTodos } = useGetTodosQuery({
+    userId: userData?._id,
+  });
 
   const [updateTodo] = useUpdateTodoMutation();
 

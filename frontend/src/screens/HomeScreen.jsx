@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import "./HomeScreen.css";
-import BackendInstance from "../Axios";
 import { useNavigate } from "react-router-dom";
 import {
   useGetTodosQuery,
   useCreateTodoMutation,
   useDeleteTodoMutation,
 } from "../slices/todoApiSlice";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { useLogoutUserMutation } from "../slices/userApiSlice";
+import { logout } from "../slices/authSlice";
 
 function HomeScreen() {
   // let [state,updateState] = useState(initialValue)
@@ -18,17 +19,19 @@ function HomeScreen() {
   let [description, setDescription] = useState("");
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const { data: todos, refetch } = useGetTodosQuery();
+  const { data: todos, refetch } = useGetTodosQuery({ userId: userData?._id });
 
   const [createTodo] = useCreateTodoMutation();
   const [deleteTodo] = useDeleteTodoMutation();
+  const [userLogout] = useLogoutUserMutation();
 
   const submitHandler = async (e) => {
     try {
       e.preventDefault();
 
-      await createTodo({ title, description });
+      await createTodo({ title, description, userId: userData?._id });
 
       setTitle("");
       setDescription("");
@@ -48,15 +51,27 @@ function HomeScreen() {
     }
   };
 
-  useEffect(()=>{
-    if(!userData){
-      navigate('/login')
+  useEffect(() => {
+    if (!userData) {
+      navigate("/login");
     }
-  },[])
+  }, []);
+
+  const logoutHandler = async () => {
+    try {
+      await userLogout().unwrap();
+      await dispatch(logout());
+      navigate("/login");  
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <>
-      <button className="delete-btn">Logout</button>
+      <button className="delete-btn" onClick={() => logoutHandler()}>
+        Logout
+      </button>
 
       <div className="container">
         <div className="form-container">

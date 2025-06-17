@@ -1,85 +1,75 @@
 import Todos from "../models/todoModel.js";
 
-
 let createTodo = async (req, res) => {
-    try {
+  try {
+    let { title, description , userId } = req.body;
 
-        let { title, description } = req.body
+    let todo = await Todos.create({
+      title,
+      description,
+      userId
+    });
 
-        let todo = await Todos.create({
-            title,
-            description
-        })
-
-        res.json(todo)
-    } catch (error) {
-        console.log(error)
-    }
-}
-
-
+    res.json(todo);
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 let getTodos = async (req, res) => {
-    try {
+  try {
+    let todos = await Todos.find({ userId: req.query.userId });
 
-        let todos = await Todos.find()
-
-        res.json(todos)
-
-    } catch (error) {
-        console.log(error)
-    }
-}
-
+    res.json(todos);
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 const deleteTodo = async (req, res) => {
-    try {
+  try {
+    const deletedTodo = await Todos.findByIdAndDelete(req.params.id);
 
-        const deletedTodo = await Todos.findByIdAndDelete(req.params.id)
-
-        if (!deletedTodo) {
-            return res.status(404).json({ message: 'Todo not founded' })
-        }
-
-        return res.json({ message: 'deleted' })
-
-    } catch (error) {
-        console.log(error)
+    if (!deletedTodo) {
+      return res.status(404).json({ message: "Todo not founded" });
     }
-}
+
+    return res.json({ message: "deleted" });
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 const getTodoById = async (req, res) => {
-    try {
-        let { id } = req.query
+  try {
+    let { id } = req.query;
 
-        const todo = await Todos.findById(id)
+    const todo = await Todos.findById(id);
 
-        res.json(todo)
-
-    } catch (error) {
-        console.log(error)
-    }
-}
-
+    res.json(todo);
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 const updateTodo = async (req, res) => {
-    try {
+  try {
+    let { title, description, isCompleted } = req.body;
 
-        let { title, description, isCompleted } = req.body
+    let updatedTodo = await Todos.findByIdAndUpdate(req.body.id, {
+      title,
+      description,
+      isCompleted,
+    });
 
-        let updatedTodo = await Todos.findByIdAndUpdate(req.body.id, { title, description, isCompleted })
-
-        if (!updatedTodo) {
-            return res.status(404).json({ message: 'Todo not founded' })
-        }
-
-        return res.json({ message: 'Todo updated successfully' })
-
-    } catch (error) {
-        console.log(error)
+    if (!updatedTodo) {
+      return res.status(404).json({ message: "Todo not founded" });
     }
-}
 
+    return res.json({ message: "Todo updated successfully" });
+  } catch (error) {
+    console.log(error);
+  }
+};
 
-
-export { createTodo, getTodos, deleteTodo, updateTodo , getTodoById }
+export { createTodo, getTodos, deleteTodo, updateTodo, getTodoById };
